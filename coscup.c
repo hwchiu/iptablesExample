@@ -11,6 +11,8 @@
 #include <linux/skbuff.h>
 #include <linux/netfilter.h>
 #include <linux/netfilter/x_tables.h>
+#include <uapi/linux/ip.h>
+#include <linux/ip.h>
 
 MODULE_LICENSE("GPL");
 MODULE_ALIAS("ipt_coscup");
@@ -24,7 +26,12 @@ static bool
 coscup_mt(const struct sk_buff *skb, struct xt_action_param *par)
 {
         const struct xt_coscup_info *coscupInfo = par->matchinfo;
-        printk("[%s]\n", coscupInfo->message);
+        struct iphdr *ip_header = ip_hdr(skb);
+
+        unsigned int src_ip = (unsigned int)ip_header->saddr;
+        unsigned int dest_ip = (unsigned int)ip_header->daddr;
+
+        printk(KERN_DEBUG "IP addres = %pI4  DEST = %pI4, message[ %s ]\n", &src_ip, &dest_ip, coscupInfo->message);
 	return true;
 }
 
